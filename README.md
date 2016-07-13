@@ -67,3 +67,4 @@ And delete, again, just a key-value array for the where clause.
 Additionally, 'normal' prepared queries are able to be implemented within Models using $this->db>preparedQuery(...) and plain queries with $this->db->query($query). This allows for more fine grained detail on data operations while still encapsulating the SQL and data logic within the Model. It does risk coupling your application to SQL though, which is not the case when using the CRUD and ModelInterface functions.
 
 
+More information about the model class and its functions is available here: http://heartsleeve.net/datalayer/docs/
