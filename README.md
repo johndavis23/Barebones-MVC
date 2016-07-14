@@ -12,6 +12,7 @@ Coming Soon
 #Description
 This is a simple boilerplate MVC. Included are examples of a simple API and a simple login. Neither are full featured and are merely intended to demonstrate the framework.
 
+
 #Using Models
 Below is a brief introduction through examples of the datalayer. Ideally you would derive a custom model class instead like we did with the UserModel. Here you can perform custom queries outside of the usual CRUD operations in the ModelInterface.
 
@@ -68,3 +69,122 @@ Additionally, 'normal' prepared queries are able to be implemented within Models
 
 
 More information about the model class and its functions is available here: http://heartsleeve.net/datalayer/docs/
+
+
+#Using Views
+
+Views are implemented within the Controller. You will render them from a controller using a syntax similar to:
+```php
+$this->view->render($path, $data);
+```
+$path will tell the framework where to look within the directory /Views/ to find the appropriate template ie Views/Users/List.php would be called using:
+```php
+$path = “Users/List”;  
+```
+$data is an array of variables you wish to set. If you have, for example, 
+```php
+$data = [“data_element_1”=>1, “data_element_2”=>2];
+```
+your view will look something like this:
+```php
+<html>Element 1: <?= $data_element_1 ?> Element 2: <?= $data_element_2 ?></html>
+```
+
+Additionally, you can redirect or 404.
+```php
+$this->view->redirectController("Login");
+$this->view->404();
+```
+
+#Using Controllers
+
+A simple controller example is provided with the login controller. Set $validActions to the end points for various actions.
+
+```php
+<?php
+/*
+ * A barebones login controller.
+ * 
+ * index.php/Login/Index or index.php/Login/ 	Supplies a form for login and registration 
+ * If logged in instead supplies a list of users
+ * index.php/Login/Register 					Processes the register form
+ * index.php/Login/Logout 						Logs the user out
+ * index.php/Login/Login 						Processes a login form
+ * 
+ */
+
+
+class LoginController extends Controller
+{
+	protected $login;
+	protected $validActions = ["Index","Login", "Register","Logout"];
+	
+	function __construct()
+	{
+		$this->view     = new View();
+		$this->login    = new Login();
+	}
+	
+	//Our Pages
+	function Index()
+	{
+		if($this->login->loggedIn())
+		{
+			$um = new UserModel();
+			$users = $um->read([]); 
+			//or $um->readAll();
+			//You can use something like this if you'd like to page these results: 
+			//$users = $um->readOffset([],  15, 0);
+
+			$this->view->render("Users/List", ["users"=>$users]);
+			
+			return;
+		}
+		else 
+		{
+			//display forms instead
+			$this->view->render("Forms/Login/Login",[]);
+			$this->view->render("Forms/Login/Register",[]);
+			return;
+		}
+	}
+	
+	function Login()
+	{
+		$username = filter_var($_POST['username'], FILTER_SANITIZE_STRING);
+		$password = filter_var($_POST['password'], FILTER_SANITIZE_STRING);
+		if($this->login->login($username, $password))
+		{
+			$_SESSION['username'] = $username;
+			$this->view->redirectController("Login");
+		}
+		else 
+		{
+			$this->login->logout();
+			$this->view->redirectController("Login");
+		}
+		
+	}
+	
+	function Logout()
+	{
+		$this->login->logout();
+		$this->view->redirectController("Login");
+	}
+	
+	function Register()
+	{
+		
+		$username = filter_var($_POST['username'], FILTER_SANITIZE_STRING);
+		$password = filter_var($_POST['password'], FILTER_SANITIZE_STRING);
+		$email 	  = filter_var($_POST['email'],    FILTER_SANITIZE_EMAIL);
+		
+		$um = new UserModel();
+		$um->registerUser($username, $password, $email);
+		
+		$this->view->redirectController("Login");
+	}
+	
+	
+}
+```
