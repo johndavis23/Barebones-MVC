@@ -18,7 +18,7 @@ Below is a brief introduction through examples of the datalayer. Ideally you wou
 
 Model classes will streamline data operations by making use of automatic prepared query generation. This has the added benefit of free sanitization, leaving just validation to the application developer.
 
-Instead here, for the example, we create an ad-hoc Model as so:
+Here, for the example, we create an ad-hoc Model:
 ```php
 	include_once("Classes/Model.php");
 	
