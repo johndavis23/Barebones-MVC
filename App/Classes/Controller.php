@@ -1,6 +1,9 @@
 <?php
-include_once('Classes/Request.php');
-include_once('Classes/View.php');
+namespace App\Classes;
+
+use App\Classes\Request;
+use App\Classes\View;
+
 
 class Controller
 {

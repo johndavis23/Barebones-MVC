@@ -12,15 +12,16 @@
  * is alive at a given time.
  * 
  */
+namespace App\Classes;
 
+use App\Util\Util;
 
 include_once('Config/config.php');
-include_once('Util/Util.class.php');
 
 
 
 //our exceptions
-class DataException 	extends Exception {}
+class DataException 	extends \Exception {}
 class SQLDataException 	extends DataException{}
 	
 
@@ -157,7 +158,7 @@ class Database
 	private function connect()
     {
     	
-        $this->databaseConnection = new mysqli($this->server, $this->username, $this->password, $this->name);
+        $this->databaseConnection = new \mysqli($this->server, $this->username, $this->password, $this->name);
        
         if ($this->databaseConnection->connect_error) 
         {

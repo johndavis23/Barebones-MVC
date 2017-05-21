@@ -1,9 +1,10 @@
 <?php
 
-//The simplest View that's not an include.
-include_once("Utils/UrlUtils.php");
+namespace App\Classes;
 
-class ViewException extends Exception{}
+use App\Util\UrlUtils;
+
+class ViewException extends \Exception{}
 
 class View
 {
@@ -17,12 +18,21 @@ class View
 	{
 		 header("Location: $url");
 	}
+
 	function redirectController($controller)
 	{
 		$url  = UrlUtils::getControllerUrl( $controller);
 		header("Location: $url");
 	}
-	function render( $view, array $data)
+
+	function renderBlock($view, array $data, $return = false)
+    {
+        //get modules for block
+        
+        //foreach module, render
+    }
+
+	function render( $view, array $data, $return = false)
 	{
 		if(file_exists("Views/$view.php"))
 		{
@@ -30,9 +40,16 @@ class View
 			foreach($data as $key=>$value)
 			{
 				$$key = $value;
+              //  $view = this;
 			}
-			
+
+			if($return)
+                ob_start();
+
 			include "Views/$view.php";
+
+            if($return)
+                return ob_get_contents();
 		}
 		else
 		{

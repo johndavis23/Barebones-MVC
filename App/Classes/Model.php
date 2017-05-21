@@ -1,12 +1,10 @@
 <?php
-
+namespace App\Classes;
 /*
  * Last Update: June 25 2016
  * 
  * This is a generic database model to extend for our various database 
  * interactions. This also helps to decouple our database implementation. 
- * It implments crud so easily inserted into a huge amount of patterns including
- * a RESTful API.
  * 
  * I added in phpdocs so users would get nice hints. I realize this isn't "Clean" but
  * it seemed worthwhile here as this class should rarely be updated and it serves to 
@@ -15,34 +13,24 @@
  * 
  * @author John Davis
  */
- 
-include_once('Classes/Database.php');
+use App\Util\Util;
+use App\Interfaces\CRUD;
+/*
 include_once('Config/config.php');
-include_once('Util/Util.class.php');
-include_once('Interfaces/CRUD.php');
-include_once('Interfaces/Model.php');
 
 spl_autoload_register(function ($name) {
     include_once "Models/".$model.".php";
 });
+*/
 
-class Model implements CRUD, ModelInterface
+class Model implements CRUD//, ModelInterface
 {
     protected   $db;
     protected   $id_field;
     protected   $table;
     protected   $fields;
-    
-    /**
-	 * Inserts a database entry using an array of values (ex: create(["account_id"=>1, "name"=>"John", "city"=>"Knoxville"])).
-	 *
-	 * @param $table The name of your table
-	 * @param $id The name of your id field (usually your primary key)
-	 * @param $database (optional) the name of the database in your config file
-	 * 
-	 * @return void
-	 * 
-	 */
+   // protected   $readable for select statements
+
     function __construct( $table,  $idField,  $database = "default")  
     {
         $this->id_field = $idField;
@@ -235,17 +223,24 @@ class Model implements CRUD, ModelInterface
 		
         return $results;
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Returns the entries that have matching ids. 
 	 *
 	 * @return array
 	 */
-    public function readWithID($id)     
+    public function readWithID($id)
     {
-       return $this->read([$this->id_field => $id]);
+        //if its an array of ids, do an in query
+        if (is_array($id))
+        {
+            $query   = "SELECT * FROM $this->table WHERE ".$this->id_field." IN ( ".join(", ", $id ).')';
+            $results = $this->callPreparedQueryWithPayload($query, $payload);
+            return $results;
+        }
+        return $this->read([$this->id_field => $id])[0];
     }
     
 	
